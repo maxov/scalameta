@@ -248,6 +248,25 @@ lazy val symtab = project
   .disablePlugins(BackgroundRunPlugin)
   .dependsOn(metacp)
 
+lazy val typeassign = project
+  .in(file("semanticdb/typeassign"))
+  .settings(
+    publishableSettings,
+    description := "Type assigner for Scala trees"
+  )
+  // NOTE: workaround for https://github.com/sbt/sbt-core-next/issues/8
+  .disablePlugins(BackgroundRunPlugin)
+  .dependsOn(metacp, symtab, scalameta.jvm, semanticdbJVM)
+
+lazy val integrationTypeassign = project
+  .in(file("semanticdb/integration-typeassign"))
+  .settings(
+    nonPublishableSettings,
+    description := "Integration tests for semanticdb type assigner"
+  )
+  // NOTE: workaround for https://github.com/sbt/sbt-core-next/issues/8
+  .disablePlugins(BackgroundRunPlugin)
+
 lazy val metap = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .crossType(CrossType.Pure)
   .in(file("semanticdb/metap"))
@@ -534,7 +553,7 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     )
   )
   .jvmConfigure(
-    _.dependsOn(testkit, interactive, metac, metacp, metai, symtab, semanticdbIntegration)
+    _.dependsOn(testkit, interactive, metac, metacp, metai, symtab, semanticdbIntegration, typeassign)
   )
   .nativeSettings(
     nativeSettings,
@@ -573,7 +592,8 @@ lazy val testSettings: List[Def.SettingsDefinition] = List(
     "javacSemanticdbPath" -> javacSemanticdbDirectory
       .in(semanticdbIntegration)
       .value
-      .getAbsolutePath
+      .getAbsolutePath,
+    "integrationTypeassignSourcepath" -> scalaSource.in(integrationTypeassign, Compile).value.getAbsolutePath
   ),
   buildInfoPackage := "scala.meta.tests",
   libraryDependencies ++= List(
