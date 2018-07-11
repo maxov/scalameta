@@ -12,7 +12,7 @@ import scala.meta.tests.BuildInfo
 import scala.meta._
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.Scala._
-import scala.meta.internal.symtab.GlobalSymbolTable
+import scala.meta.internal.symtab.{GlobalSymbolTable, LocalSymbolTable}
 import scala.meta.internal.typeassign.TypeAssign
 
 class TypeAssignSuite extends FunSuite {
@@ -30,7 +30,7 @@ class TypeAssignSuite extends FunSuite {
       Seq()
   }
 
-  test("trying to get metac working") {
+  test("Type assign integration") {
     val out = {
       val out = Files.createTempDirectory("metac")
       val classpath = this.getClass.getClassLoader
@@ -72,8 +72,12 @@ class TypeAssignSuite extends FunSuite {
     val checkAssignsWithInfo = checkAssigns.map {
       case (name, tree) => (name, tree, checkAssignSymbols(name))
     }
-    val symtab = GlobalSymbolTable(Classpath(AbsolutePath(out)))
+    val symtab = LocalSymbolTable(basicSemanticdb.symbols)
     val typeAssign = new TypeAssign(symtab, basicSemanticdb.occurrences)
+    checkAssignsWithInfo foreach {
+      case (_, tree, _) =>
+        println(tree.rhs, tree.rhs.getClass)
+    }
     checkAssignsWithInfo foreach {
       case (_, tree, info) =>
         val s.MethodSignature(_, _, ret) = info.signature
