@@ -1,13 +1,9 @@
 package scala.meta.tests.typeassign
 
-import java.io.File
-import java.net.URLClassLoader
-import java.nio.file.{Files, Paths}
+import java.nio.file.Paths
 import org.scalatest.FunSuite
-import scala.meta.cli.{Metac, Reporter}
 import scala.meta.internal.io.FileIO
 import scala.meta.io.AbsolutePath
-import scala.meta.metac.Settings
 import scala.meta.tests.BuildInfo
 import scala.meta._
 import scala.meta.internal.{semanticdb => s}
@@ -31,31 +27,7 @@ class TypeAssignSuite extends FunSuite {
   }
 
   test("Type assign integration") {
-    val out = {
-      val out = Files.createTempDirectory("metac")
-      val classpath = this.getClass.getClassLoader
-        .asInstanceOf[URLClassLoader]
-        .getURLs
-        .map(_.getPath)
-        .filter(_.contains("scala-library"))
-        .mkString(File.pathSeparator)
-      val inFiles = FileIO
-        .listAllFilesRecursively(AbsolutePath(BuildInfo.integrationTypeassignSourcepath))
-        .map(_.toString)
-        .filter(_.endsWith("scala"))
-      val scalacArgs = List(
-        "-d",
-        out.toString,
-        "-classpath",
-        classpath,
-        "-P:semanticdb:failures:error"
-      ) ++ inFiles
-      val settings = Settings().withScalacArgs(scalacArgs)
-      val reporter = Reporter()
-      val success = Metac.process(settings, reporter)
-      assert(success)
-      out
-    }
+    val out = Paths.get(BuildInfo.integrationTypeassignClasspath)
 
     val basicSemanticdb = {
       val result = out.resolve("META-INF/semanticdb/semanticdb/integration-typeassign/src/main/scala/example/BasicTest.scala.semanticdb")

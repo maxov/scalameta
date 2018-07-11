@@ -185,6 +185,24 @@ lazy val semanticdbJavacPlugin = project
   )
   .dependsOn(semanticdbJVM, ioJVM)
 
+lazy val runSemanticdbScalac = Seq(
+  scalacOptions -= "-Xfatal-warnings",
+  scalacOptions ++= {
+    val pluginJar = Keys.`package`.in(semanticdbScalacPlugin, Compile).value.getAbsolutePath
+    Seq(
+      s"-Xplugin:$pluginJar",
+      s"-Xplugin-require:semanticdb",
+      s"-Ywarn-unused-import",
+      s"-Yrangepos",
+      s"-P:semanticdb:text:on", // include text to print occurrences in expect suite
+      s"-P:semanticdb:failures:error", // fail fast during development.
+      s"-P:semanticdb:exclude:Exclude.scala",
+      s"-P:semanticdb:sourceroot:${baseDirectory.in(ThisBuild).value}",
+      s"-P:semanticdb:synthetics:on"
+    )
+  }
+)
+
 lazy val cli = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .crossType(CrossType.Pure)
   .in(file("semanticdb/cli"))
@@ -261,8 +279,10 @@ lazy val typeassign = project
 lazy val integrationTypeassign = project
   .in(file("semanticdb/integration-typeassign"))
   .settings(
+    sharedSettings,
     nonPublishableSettings,
-    description := "Integration tests for semanticdb type assigner"
+    description := "Integration tests for semanticdb type assigner",
+    runSemanticdbScalac
   )
   // NOTE: workaround for https://github.com/sbt/sbt-core-next/issues/8
   .disablePlugins(BackgroundRunPlugin)
@@ -470,21 +490,6 @@ lazy val semanticdbIntegration = project
     description := "Sources to compile to build SemanticDB for tests.",
     sharedSettings,
     nonPublishableSettings,
-    scalacOptions -= "-Xfatal-warnings",
-    scalacOptions ++= {
-      val pluginJar = Keys.`package`.in(semanticdbScalacPlugin, Compile).value.getAbsolutePath
-      Seq(
-        s"-Xplugin:$pluginJar",
-        s"-Xplugin-require:semanticdb",
-        s"-Ywarn-unused-import",
-        s"-Yrangepos",
-        s"-P:semanticdb:text:on", // include text to print occurrences in expect suite
-        s"-P:semanticdb:failures:error", // fail fast during development.
-        s"-P:semanticdb:exclude:Exclude.scala",
-        s"-P:semanticdb:sourceroot:${baseDirectory.in(ThisBuild).value}",
-        s"-P:semanticdb:synthetics:on"
-      )
-    },
     javacSemanticdbDirectory := (target.in(Compile).value / "javac-semanticdb"),
     javaHome in Compile := {
       // force javac to fork by setting javaHome, otherwise the compiler errors
@@ -499,6 +504,7 @@ lazy val semanticdbIntegration = project
         "-parameters"
       )
     }
+    runSemanticdbScalac
   )
   .dependsOn(semanticdbIntegrationMacros)
 
@@ -593,7 +599,8 @@ lazy val testSettings: List[Def.SettingsDefinition] = List(
       .in(semanticdbIntegration)
       .value
       .getAbsolutePath,
-    "integrationTypeassignSourcepath" -> scalaSource.in(integrationTypeassign, Compile).value.getAbsolutePath
+    "integrationTypeassignSourcepath" -> scalaSource.in(integrationTypeassign, Compile).value.getAbsolutePath,
+    "integrationTypeassignClasspath" -> classDirectory.in(integrationTypeassign, Compile).value.getAbsolutePath
   ),
   buildInfoPackage := "scala.meta.tests",
   libraryDependencies ++= List(
