@@ -47,7 +47,6 @@ class TypeAssign(symtab: SymbolTable, occs: Seq[s.SymbolOccurrence]) {
         val s.MethodSignature(tparams, _, ret) = signature(term.fun)
         val tApply: Seq[s.Type] = term.targs.map(toSemanticdbType)
         val substitutions = tparams.get.symlinks.zip(tApply).toMap
-        println(s"substitute $substitutions into $ret")
         val finalType = substitute(ret, substitutions)
         s.MethodSignature(returnType = finalType)
     }
@@ -64,7 +63,6 @@ class TypeAssign(symtab: SymbolTable, occs: Seq[s.SymbolOccurrence]) {
   }
 
   def assign(term: Term): s.Type = {
-    println(s"assign $term")
     getType(term)
   }
 

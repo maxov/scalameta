@@ -33,7 +33,7 @@ object BasicTest {
 
     val check_polyTypeApply = myId[String]("hello")
 
-    val check_polyFnCall = myId("hello")
+//    val check_polyFnCall = myId("hello")
 
   }
 

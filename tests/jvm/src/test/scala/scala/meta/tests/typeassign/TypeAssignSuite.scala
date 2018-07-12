@@ -51,7 +51,7 @@ class TypeAssignSuite extends FunSuite {
       case (_, tree, info) =>
         val s.MethodSignature(_, _, ret) = info.signature
         val typeAssignRet = typeAssign.assign(tree.rhs)
-        assert(typeAssignRet == ret)
+        assert(typeAssignRet == ret, s"for term: ${tree.rhs}")
     }
   }
 
