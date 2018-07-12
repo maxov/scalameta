@@ -559,7 +559,8 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     )
   )
   .jvmConfigure(
-    _.dependsOn(testkit, interactive, metac, metacp, metai, symtab, semanticdbIntegration, typeassign)
+    _.dependsOn(testkit, interactive, metac, metacp, metai, symtab, semanticdbIntegration, 
+                typeassign, integrationTypeassign)
   )
   .nativeSettings(
     nativeSettings,

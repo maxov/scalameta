@@ -10,7 +10,7 @@ object BasicTest {
 
   }
 
-  object defs {
+  object refs {
 
     def basicDef = 6
     def basicDefEmptyParams() = 7
@@ -28,6 +28,12 @@ object BasicTest {
     def myInc(x: Int): Int = x + 1
 
     val check_fnCall = myInc(5)
+
+    def myId[T](x: T): T = x
+
+    val check_polyTypeApply = myId[String]("hello")
+
+    val check_polyFnCall = myId("hello")
 
   }
 

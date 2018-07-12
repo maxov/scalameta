@@ -45,16 +45,13 @@ class TypeAssignSuite extends FunSuite {
       case (name, tree) => (name, tree, checkAssignSymbols(name))
     }
     val symtab = LocalSymbolTable(basicSemanticdb.symbols)
+    println(basicSemanticdb.synthetics)
     val typeAssign = new TypeAssign(symtab, basicSemanticdb.occurrences)
-    checkAssignsWithInfo foreach {
-      case (_, tree, _) =>
-        println(tree.rhs, tree.rhs.getClass)
-    }
     checkAssignsWithInfo foreach {
       case (_, tree, info) =>
         val s.MethodSignature(_, _, ret) = info.signature
         val typeAssignRet = typeAssign.assign(tree.rhs)
-        assert(ret == typeAssignRet)
+        assert(typeAssignRet == ret)
     }
   }
 
