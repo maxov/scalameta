@@ -503,7 +503,7 @@ lazy val semanticdbIntegration = project
         s"-Xplugin:semanticdb $outDir --sourceroot ${baseDirectory.in(ThisBuild).value}",
         "-parameters"
       )
-    }
+    },
     runSemanticdbScalac
   )
   .dependsOn(semanticdbIntegrationMacros)

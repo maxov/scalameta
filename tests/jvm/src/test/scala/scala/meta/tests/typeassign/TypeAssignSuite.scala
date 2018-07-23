@@ -39,14 +39,14 @@ class TypeAssignSuite extends FunSuite {
       case info if info.symbol.desc.name.startsWith("check_") => info.symbol.desc.name -> info
     }.toMap
 
-    val parsed = Input.File(Paths.get(BuildInfo.integrationTypeassignSourcepath).resolve("example/BasicTest.scala"))
-    val checkAssigns = collectCheckAssigns(parsed.parse[Source].get)
+    val inFile = Input.File(Paths.get(BuildInfo.integrationTypeassignSourcepath).resolve("example/BasicTest.scala"))
+    val parsedSource = inFile.parse[Source].get
+    val checkAssigns = collectCheckAssigns(parsedSource)
     val checkAssignsWithInfo = checkAssigns.map {
       case (name, tree) => (name, tree, checkAssignSymbols(name))
     }
     val symtab = LocalSymbolTable(basicSemanticdb.symbols)
-    println(basicSemanticdb.synthetics)
-    val typeAssign = new TypeAssign(symtab, basicSemanticdb.occurrences)
+    val typeAssign = new TypeAssign(parsedSource, symtab, basicSemanticdb.occurrences, basicSemanticdb.synthetics)
     checkAssignsWithInfo foreach {
       case (_, tree, info) =>
         val s.MethodSignature(_, _, ret) = info.signature
