@@ -1,7 +1,6 @@
 package scala.meta.internal.typeassign
 
 import scala.meta._
-import scala.meta.internal.semanticdb.TreeMessage.SealedValue.OriginalTree
 import scala.meta.internal.symtab.SymbolTable
 import scala.meta.internal.{semanticdb => s}
 
@@ -12,7 +11,7 @@ class TypeAssign(
     synths: Seq[s.Synthetic]) {
 
   private def getSymbol(range: s.Range) = {
-    val Seq(occ) = occs.filter(occ => occ.range.fold(false)(_ == range))
+    val Seq(occ) = occs.filter(occ => occ.range.contains(range))
     occ.symbol
   }
 
@@ -26,7 +25,7 @@ class TypeAssign(
   }
 
   private def getSynthetic(range: s.Range): Option[s.Synthetic] = {
-    synths.filter(synth => synth.range.fold(false)(_ == range)) match {
+    synths.filter(synth => synth.range.contains(range)) match {
       case Seq(synth) => Some(synth)
       case _ => None
     }
@@ -75,8 +74,9 @@ class TypeAssign(
         sig
       case term: Term.Apply =>
         val s.MethodSignature(_, _, ret) =
-          getSynthetic(term.fun.pos.toRange).fold(signature(term.fun)) { synth =>
-            signature(synth.tree)
+          getSynthetic(term.fun.pos.toRange) match {
+            case Some(synth) => signature(synth.tree)
+            case None => signature(term.fun)
           }
         s.ValueSignature(ret)
       case term: Term.ApplyType =>
@@ -87,20 +87,18 @@ class TypeAssign(
       case _ => sys.error(s"unsupported tree: $term")
     }
 
-  private def getType(term: Term): s.Type = {
-    signature(term) match {
-      case s.ValueSignature(tpe) => tpe
-      case s.MethodSignature(tParams, parameterLists, returnType) =>
-        parameterLists match {
-          case Seq() | Seq(s.Scope(Seq(), Seq())) => returnType
-        }
-      case sig => sys.error(s"expected type when other signature $sig provided")
-    }
+  private def asTermSignature(sig: s.Signature): Option[s.ValueSignature] = sig match {
+    case sig: s.ValueSignature => Some(sig)
+    case s.MethodSignature(tParams, parameterLists, returnType) =>
+      // 0-argument method in position of a term is the return type of the method
+      parameterLists match {
+        case Seq() | Seq(s.Scope(Seq(), Seq())) => Some(s.ValueSignature(returnType))
+        case _ => None
+      }
+    case _ => None
   }
 
-  def assign(term: Term): s.Type = {
-    getType(term)
-  }
+  def assign(term: Term): s.Type = asTermSignature(signature(term)).get.tpe
 
   implicit class PositionOps(pos: Position) {
     def toRange: s.Range = s.Range(
