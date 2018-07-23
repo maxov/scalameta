@@ -5,7 +5,11 @@ import scala.meta.internal.semanticdb.TreeMessage.SealedValue.OriginalTree
 import scala.meta.internal.symtab.SymbolTable
 import scala.meta.internal.{semanticdb => s}
 
-class TypeAssign(source: Source, symtab: SymbolTable, occs: Seq[s.SymbolOccurrence], synths: Seq[s.Synthetic]) {
+class TypeAssign(
+    source: Source,
+    symtab: SymbolTable,
+    occs: Seq[s.SymbolOccurrence],
+    synths: Seq[s.Synthetic]) {
 
   private def getSymbol(range: s.Range) = {
     val Seq(occ) = occs.filter(occ => occ.range.fold(false)(_ == range))
@@ -70,9 +74,10 @@ class TypeAssign(source: Source, symtab: SymbolTable, occs: Seq[s.SymbolOccurren
         val sig = symtab.info(sym).get.signature
         sig
       case term: Term.Apply =>
-        val s.MethodSignature(_, _, ret) = getSynthetic(term.fun.pos.toRange).fold(signature(term.fun)) { synth =>
-          signature(synth.tree)
-        }
+        val s.MethodSignature(_, _, ret) =
+          getSynthetic(term.fun.pos.toRange).fold(signature(term.fun)) { synth =>
+            signature(synth.tree)
+          }
         s.ValueSignature(ret)
       case term: Term.ApplyType =>
         val s.MethodSignature(tparams, _, ret) = signature(term.fun)

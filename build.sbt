@@ -559,8 +559,16 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     )
   )
   .jvmConfigure(
-    _.dependsOn(testkit, interactive, metac, metacp, metai, symtab, semanticdbIntegration, 
-                typeassign, integrationTypeassign)
+    _.dependsOn(
+      testkit,
+      interactive,
+      metac,
+      metacp,
+      metai,
+      symtab,
+      semanticdbIntegration,
+      typeassign,
+      integrationTypeassign)
   )
   .nativeSettings(
     nativeSettings,
@@ -600,8 +608,14 @@ lazy val testSettings: List[Def.SettingsDefinition] = List(
       .in(semanticdbIntegration)
       .value
       .getAbsolutePath,
-    "integrationTypeassignSourcepath" -> scalaSource.in(integrationTypeassign, Compile).value.getAbsolutePath,
-    "integrationTypeassignClasspath" -> classDirectory.in(integrationTypeassign, Compile).value.getAbsolutePath
+    "integrationTypeassignSourcepath" -> scalaSource
+      .in(integrationTypeassign, Compile)
+      .value
+      .getAbsolutePath,
+    "integrationTypeassignClasspath" -> classDirectory
+      .in(integrationTypeassign, Compile)
+      .value
+      .getAbsolutePath
   ),
   buildInfoPackage := "scala.meta.tests",
   libraryDependencies ++= List(
