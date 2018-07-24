@@ -41,11 +41,11 @@ class TypeAssign(
     }
   }
 
-
-  private def signatureRange(range: s.Range, tree: Option[Term] = None): s.Signature = getSynthetic(range) match {
-    case Some(synth) => signature(synth.tree)
-    case None => signature(tree.getOrElse(getTerm(range)))
-  }
+  private def signatureRange(range: s.Range, tree: Option[Term] = None): s.Signature =
+    getSynthetic(range) match {
+      case Some(synth) => signature(synth.tree)
+      case None => signature(tree.getOrElse(getTerm(range)))
+    }
 
   private def signature(tree: s.Tree): s.Signature = tree match {
     case s.OriginalTree(Some(range)) => signature(getTerm(range))
@@ -106,9 +106,9 @@ class TypeAssign(
   }
 
   /**
-   * Models a substitution from a list of symbols representing type variables, to the types
-   * those symbols should become. The apply methods perform the substitution.
-   */
+    * Models a substitution from a list of symbols representing type variables, to the types
+    * those symbols should become. The apply methods perform the substitution.
+    */
   private class Substitution(mapping: Map[String, s.Type]) {
 
     def apply(tpe: s.Type): s.Type = tpe match {
@@ -137,14 +137,18 @@ class TypeAssign(
     }
 
     /**
-     * Build a substitution based on some applied type
-     */
+      * Build a substitution based on some applied type
+      */
     def apply(qualType: s.Type): Substitution = qualType match {
       case s.TypeRef(_, sym, Seq()) => Substitution(Map.empty[String, s.Type])
       case s.TypeRef(_, sym, targs) =>
-        val symSig = symtab.info(sym).map(_.signature).collect {
-          case sig: s.ClassSignature => sig
-        }.get
+        val symSig = symtab
+          .info(sym)
+          .map(_.signature)
+          .collect {
+            case sig: s.ClassSignature => sig
+          }
+          .get
         val tparams = symSig.typeParameters
         Substitution(tparams, targs)
     }
