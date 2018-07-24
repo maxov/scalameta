@@ -35,6 +35,40 @@ object BasicTest {
 
     val check_polyFnCall = myId("hello")
 
+    def createList[T](x: T): List[T] = List(x)
+
+    val check_createList = createList[Int](3)
+    val check_createListPoly = createList("hello")
+
+    def buildListTuple[A, B](x: A, y: B): (List[A], B) = (List(x), y)
+
+    val check_buildListTuple = buildListTuple[Int, String](3, "hello")
+    val check_buildListTuplePoly = buildListTuple(6, "world")
+
+  }
+
+  object selects {
+
+    class Y {
+
+      def m: String = "hello"
+
+    }
+
+    class X {
+      val a: Int = 3
+      def b: List[Int] = List(4)
+      def f(x: Int): Int = x + 1
+      def g[T](x: T): List[T] = List(x)
+      val y: Y = new Y
+    }
+
+    val myX = new X
+
+    val check_select = myX.a
+    val check_selectMore = myX.b
+    val check_selectRepeated = myX.y.m
+
   }
 
 }
