@@ -227,6 +227,17 @@ lazy val metacp = project
   .disablePlugins(BackgroundRunPlugin)
   .dependsOn(semanticdbJVM, cliJVM, ioJVM)
 
+lazy val metanl = project
+  .in(file("semanticdb/metanl"))
+  .settings(
+    publishableSettings,
+    moduleName := "metanl",
+    mainClass := Some("scala.meta.cli.Metanl")
+  )
+  // FIXME: https://github.com/scalameta/scalameta/issues/1688
+  .disablePlugins(BackgroundRunPlugin)
+  .dependsOn(semanticdbJVM, cliJVM, ioJVM)
+
 lazy val metai = project
   .in(file("semanticdb/metai"))
   .settings(
