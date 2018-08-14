@@ -5,8 +5,8 @@ import scala.meta.cli.Reporter
 import scala.meta.io.Classpath
 
 case class Settings(
-  classpath: Option[Path] = None,
-  outRoot: Option[Path] = None
+    classpath: Option[Path] = None,
+    outRoot: Option[Path] = None
 )
 
 object Settings {
